@@ -1,15 +1,58 @@
+#' Create pivot language dictionary from manually annotated documents
+#'
+#' @param dfmat a document-feature matrix of class `dfm`.
+#' @param sentiment_name a character value representing the variable name of the requested dimension,
+#' which must be a variable in the `dfm` indicating the manual coding.
+#' @param oversampling_max a numeric value between 0 and 1 representing the number of positivly labelled documents.
+#' The default is 0.2 meaning that until the sentiment appears in less than 20 percent of the documents oversampling is conducted.
+#' @param training_size a numeric value between 0 and 1 indicating the training sample size.
+#' The default is 0.9 standing for 90 percent of documents being used as training set and 10 percent of
+#' documents being used as test set.
+#' @param seed an integer value specifying the seeds.
+#' @param alpha_elastic_net a numeric value between 0 and 1 indicating the mixing parameter between
+#' a LASSO and a RIDGE estimation. The default is 0.9 favoring the LASSO estimation.
+#' @return An object of class `pivot_dictonary` including the `dictionary_words`, `sentiment_name`,
+#' the optimal lambda (`lambda`) from the elastic net estimation, the names of the `training_docs`,
+#' the names of the `test_docs`, the prediction values for the test documents (`out_sample_prediction`),
+#' the prediction values for the training documents (`in_sample_prediction`),
+#' the accuracy of the predictions for the test sample (`out_sample_accuracy`),
+#' the accuracy of the predictions for the training sample (`in_sample_accuracy`)
+#'  @importFrom quanteda is.dfm dfm_subset dfm_sample docvars ndoc convert
+#'  @importFrom glmnet cv.glmnet glmnet
+#'  @importFrom dplyr mutate arrange
+#' @examples
+#' ?quanteda.corpora::data_corpus_amicus
+#' corp <- quanteda.corpora::data_corpus_amicus
+#' dfmat <- dfm(corp)
+#' table(dfmat$trainclass)
+#' dfmat$pro_respondent <- ifelse(dfmat$testclass=="AR"|dfmat$trainclass=="R",1,0)
+#' dfmat$pro_respondent <- ifelse(is.na(dfmat$pro_respondent),0,dfmat$pro_respondent)
+#' dfmat$pro_petitioner <- ifelse(dfmat$testclass=="AP"|dfmat$trainclass=="AP",1,0)
+#' dfmat$pro_petitioner <- ifelse(is.na(dfmat$pro_petitioner),0,dfmat$pro_petitioner)
+#' out_respondent <- create_pivot_dictionary(dfmat=dfmat,
+#'                                           sentiment_name = 'pro_respondent',
+#'                                           alpha_elastic_net = 0.1)
+#' head(out_respondent$dictionary_words)
+#' tail(out_respondent$dictionary_words)
 
-
+#' out_petitioner <- create_pivot_dictionary(dfmat=dfmat,
+#'                                           sentiment_name = 'pro_petitioner',
+#'                                           alpha_elastic_net = 0.1)
+#' head(out_petitioner$dictionary_words)
+#' tail(out_petitioner$dictionary_words)
 
 
 
 create_pivot_dictionary <- function(dfmat = dfmat,
-                                    coding_id = NULL,
                                     sentiment_name = NULL,
                                     oversampling_max = 0.2,
                                     training_size = 0.9,
                                     seed = 1111,
                                     alpha_elastic_net = 0.9) {
+  if(!is.dfm(dfmat)){
+    stop("Input matrix must be of class quanteda::dfm.")
+  }
+
   # check overlapping names
   dfmat0 <- dfm_subset(dfmat, !is.na(docvars(dfmat)[[sentiment_name]]))
   set.seed(seed)
@@ -51,6 +94,7 @@ create_pivot_dictionary <- function(dfmat = dfmat,
   dfmat_training <- dfmat_training[, featnames(dfmat_training) %in% out[out$s0 != 0, ]$word]
   mat_training <- convert(dfmat_training, to = "matrix")
   out <- out[match(colnames(mat_training), out$word), ]
+  out <- out %>% arrange(desc(s0))
   mat_training <- mat_training * out[out$s0 != 0, ]$s0
 
 
