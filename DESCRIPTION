@@ -5,13 +5,13 @@ Authors@R:
     person("Lisa", "Lechner", , "lisa.lechner@uibk.ac.at", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-6690-1029"))
 Description: Creates multilingual dictionaries when you master only one language. 
-Word-embeddings and machine translations represent the core functionalities along the process.
-Functions included to create a pivot language dictionary based on manual coding using elastic net estimations. 
-You could also create the pivot dictionary using different techniques.
+             Word-embeddings and machine translations represent the core functionalities along the process.
+             Functions included to create a pivot language dictionary based on manual coding using elastic net estimations. 
+             You could also create the pivot dictionary using different techniques.
 License: `use_gpl3_license()`
 Encoding: UTF-8
-URL:
-BugReports: 
+URL: https://github.com/LisaLechner/dict2multi
+BugReports: https://github.com/LisaLechner/dict2multi/issues
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 VignetteBuilder: knitr
