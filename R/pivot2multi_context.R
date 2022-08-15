@@ -14,6 +14,10 @@
 #' @return a dataframe including a column with the `pivot_language`-words,
 #' the corresponding translated word in the `target_language`, and the
 #' `cosine`-similarity of the word-pair.
+#' @importFrom deeplr available_languages translate
+#' @importFrom quanteda tokens dfm tokens_toupper tokens_select corpus dfm_trim dfm_tfidf tokens_remove tokens_compound tokens_tolower
+#' @importFrom quanteda.textstats textstat_collocations textstat_simil
+#' @importFrom dplyr left_join filter arrange summerise group_by ungroup select
 
 
 pivot2multi_context <- function(corpus=NULL,
@@ -158,7 +162,7 @@ for(i in seq_along(lang)){
     sim12 <- sim12 %>% data.frame()
     sim12b <- sim12 %>%
       group_by(feature1) %>%
-      dplyr::summarise(cosine_max = max(cosine))
+      dplyr::summarise(cosine_max = max(cosine)) %>% ungroup()
 
     sim12 <- left_join(sim12, sim12b) %>% filter(cosine == cosine_max)
     sim12 <- sim12 %>%
