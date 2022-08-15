@@ -11,7 +11,7 @@
 #' @param seed an integer value specifying the seeds.
 #' @param alpha_elastic_net a numeric value between 0 and 1 indicating the mixing parameter between
 #' a LASSO and a RIDGE estimation. The default is 0.9 favoring the LASSO estimation.
-#' @return An object of class `pivot_dictonary` including the `dictionary_words`, `sentiment_name`,
+#' @return An object of class `pivot_dictonary` including the `dictionary_words`, the `sentiment_name`,
 #' the optimal lambda (`lambda`) from the elastic net estimation, the names of the `training_docs`,
 #' the names of the `test_docs`, the prediction values for the test documents (`out_sample_prediction`),
 #' the prediction values for the training documents (`in_sample_prediction`),
@@ -25,13 +25,15 @@
 #' corp <- quanteda.corpora::data_corpus_amicus
 #' dfmat <- dfm(corp)
 #' table(dfmat$trainclass)
-#' dfmat$pro_respondent <- ifelse(dfmat$testclass=="AR"|dfmat$trainclass=="R",1,0)
-#' dfmat$pro_respondent <- ifelse(is.na(dfmat$pro_respondent),0,dfmat$pro_respondent)
-#' dfmat$pro_petitioner <- ifelse(dfmat$testclass=="AP"|dfmat$trainclass=="AP",1,0)
-#' dfmat$pro_petitioner <- ifelse(is.na(dfmat$pro_petitioner),0,dfmat$pro_petitioner)
-#' out_respondent <- create_pivot_dictionary(dfmat=dfmat,
-#'                                           sentiment_name = 'pro_respondent',
-#'                                           alpha_elastic_net = 0.1)
+#' dfmat$pro_respondent <- ifelse(dfmat$testclass == "AR" | dfmat$trainclass == "R", 1, 0)
+#' dfmat$pro_respondent <- ifelse(is.na(dfmat$pro_respondent), 0, dfmat$pro_respondent)
+#' dfmat$pro_petitioner <- ifelse(dfmat$testclass == "AP" | dfmat$trainclass == "AP", 1, 0)
+#' dfmat$pro_petitioner <- ifelse(is.na(dfmat$pro_petitioner), 0, dfmat$pro_petitioner)
+#' out_respondent <- create_pivot_dictionary(
+#'   dfmat = dfmat,
+#'   sentiment_name = "pro_respondent",
+#'   alpha_elastic_net = 0.1
+#' )
 #' head(out_respondent$dictionary_words)
 #' tail(out_respondent$dictionary_words)
 
@@ -43,13 +45,13 @@
 
 
 
-create_pivot_dictionary <- function(dfmat = dfmat,
+create_pivot_dictionary <- function(dfmat = NULL,
                                     sentiment_name = NULL,
                                     oversampling_max = 0.2,
                                     training_size = 0.9,
                                     seed = 1111,
                                     alpha_elastic_net = 0.9) {
-  if(!is.dfm(dfmat)){
+  if (!is.dfm(dfmat)) {
     stop("Input matrix must be of class quanteda::dfm.")
   }
 
